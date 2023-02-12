@@ -1,5 +1,7 @@
 FROM python:3.10
 
+SHELL ["/bin/bash", "-c"]
+
 WORKDIR /opt/app
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -13,6 +15,7 @@ COPY run_uwsgi.sh run_uwsgi.sh
 COPY requirements.txt requirements.txt
 COPY uwsgi/uwsgi.ini uwsgi.ini
 
+
 RUN  mkdir -p /var/www/static/ \
      && mkdir -p /var/www/media/ \
      && mkdir -p /opt/app/static/ \
@@ -21,6 +24,7 @@ RUN  mkdir -p /var/www/static/ \
      && pip install -r requirements.txt
 
 COPY . .
+
 
 EXPOSE 8000
 

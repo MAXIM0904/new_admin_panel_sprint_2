@@ -13,13 +13,24 @@ include(
     'components/auth_password_validators.py',
 )
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 50
+}
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-DEBUG = os.getenv('DEBUG', False)
+DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS")]
+ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS")]
 
 LOCALE_PATHS = ['movies/locale']
 
@@ -37,10 +48,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_URL = "static"
-
-STATIC_ROOT = "static"
-
-MEDIA_ROOT = "static"
+STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
