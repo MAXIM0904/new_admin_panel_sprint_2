@@ -27,32 +27,6 @@ class UUIDMixin(models.Model):
         abstract = True
 
 
-class FilmWork(UUIDMixin, TimeModifiedMixin):
-    title = models.CharField(_('Title film'), max_length=255)
-    description = models.TextField(
-        _('Description film'), blank=True, null=True)
-    creation_date = models.DateTimeField(
-        _('Creation date film'), auto_now_add=True)
-    rating = models.FloatField(_('Rating'))
-    type = models.TextField(_('Type'), blank=True, null=True)
-
-    class Meta:
-        db_table = "content\".\"film_work"
-        indexes = [models.Index(fields=['creation_date'], name='film_work_idx')]
-        verbose_name = _('film')
-        verbose_name_plural = _('films')
-
-    def __str__(self):
-        return self.title
-
-
-class FilmWorkMixin(models.Model):
-    film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE, verbose_name=_('Film work'))
-
-    class Meta:
-        abstract = True
-
-
 class Genre(UUIDMixin, TimeModifiedMixin):
     name = models.CharField(_('Name genre'), max_length=255)
     description = models.TextField(_('Description genre'), blank=True)
@@ -78,6 +52,34 @@ class Person(UUIDMixin, TimeModifiedMixin):
 
     def __str__(self):
         return self.full_name
+
+
+class FilmWork(UUIDMixin, TimeModifiedMixin):
+    title = models.CharField(_('Title film'), max_length=255)
+    description = models.TextField(
+        _('Description film'), blank=True, null=True)
+    creation_date = models.DateTimeField(
+        _('Creation date film'), auto_now_add=True)
+    rating = models.FloatField(_('Rating'))
+    type = models.TextField(_('Type'), blank=True, null=True)
+    genr = models.ManyToManyField(Genre, through='GenreFilmWork', verbose_name="genres")
+    pers = models.ManyToManyField(Person, through='PersonFilmWork', verbose_name="persons")
+
+    class Meta:
+        db_table = "content\".\"film_work"
+        indexes = [models.Index(fields=['creation_date'], name='film_work_idx')]
+        verbose_name = _('film')
+        verbose_name_plural = _('films')
+
+    def __str__(self):
+        return self.title
+
+
+class FilmWorkMixin(models.Model):
+    film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE, verbose_name=_('Film work'))
+
+    class Meta:
+        abstract = True
 
 
 class GenreFilmWork(UUIDMixin, TimeCreatedMixin, FilmWorkMixin):

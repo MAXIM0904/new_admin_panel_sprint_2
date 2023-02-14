@@ -1,8 +1,15 @@
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import ExpressionWrapper
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
-from movies.models import FilmWork
+from movies.models import FilmWork, GenreFilmWork, PersonFilmWork
 from movies.api.v1 import serializers
 from rest_framework.response import Response
+from django.db.models import Q
+from django.db.models import TextField
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -29,13 +36,32 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class Movies(ListAPIView):
-
     serializer_class = serializers.FilmWorkSerializer
     pagination_class = StandardResultsSetPagination
+    queryset = FilmWork.objects.prefetch_related('genr', 'pers').all().annotate(genres=ArrayAgg('genr__name')).\
+        annotate(actors=ArrayAgg('pers__full_name'),
+                 filter=ExpressionWrapper(Q(personfilmwork__role__gt='actor'), output_field=TextField())).\
+        annotate(writers=ArrayAgg('pers__full_name'),
+                 filter=ExpressionWrapper(Q(personfilmwork__role__gt='writer'), output_field=TextField())).\
+        annotate(directors=ArrayAgg('pers__full_name'),
+                 filter=ExpressionWrapper(Q(personfilmwork__role__gt='director'), output_field=(TextField())))
 
-    def get_queryset(self):
-        x = FilmWork.objects.all()
-        print(x)
-        y = self.serializer_class(x[0])
-        print(y.data)
-        return x
+
+class MoviesId(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request, pk):
+        isinstance = FilmWork.objects.prefetch_related('genr', 'pers').filter(id=pk).\
+            annotate(genres=ArrayAgg('genr__name')).\
+            annotate(actors=ArrayAgg('pers__full_name'),
+                     filter=ExpressionWrapper(Q(personfilmwork__role__gt='actor'), output_field=TextField())).\
+            annotate(writers=ArrayAgg('pers__full_name'),
+                     filter=ExpressionWrapper(Q(personfilmwork__role__gt='writer'), output_field=TextField())). \
+            annotate(directors=ArrayAgg('pers__full_name'),
+                     filter=ExpressionWrapper(Q(personfilmwork__role__gt='director'), output_field=(TextField())))
+        if isinstance:
+            serializer = serializers.FilmWorkSerializer(isinstance, many=True)
+            return JsonResponse({'type': str(type(serializer)), 'required': serializer.data}, safe=False)
+        else:
+            return JsonResponse({'type': 'Запрос фильма по несуществующему UUID'},
+                                json_dumps_params={'ensure_ascii': False})
