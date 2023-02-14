@@ -5,8 +5,6 @@ services:
     container_name: movies_database
     env_file:
       - .env
-    ports:
-      - "5432:5432"
 
   django_project:
     build: ./app
@@ -19,21 +17,10 @@ services:
       - media_volume:/opt/app/media/
     env_file:
       - .env
-    ports:
-      - "8001:8000"
-
-#  service:
-#    build: ./app
-#    expose:
-#      - "8000"
-#    depends_on:
-#      - django_project
 
   nginx:
     image: nginx:1.22.1
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./configs:/etc/nginx/conf.d:ro
       - ./data:/data/:ro
       - static_volume:/opt/app/static/
       - media_volume:/opt/app/media/
@@ -45,5 +32,3 @@ services:
 volumes:
   static_volume:
   media_volume:
-  nginx.conf:
-  configs:
