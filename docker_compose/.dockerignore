@@ -138,7 +138,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-!/simple_project/.env
-!/.gitignore
-!/simple_project/.dockerignore
 !/.dockerignore
+!/.env
+/.env
+/.dockerignore
