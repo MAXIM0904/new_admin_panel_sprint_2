@@ -29,5 +29,4 @@ COPY . .
 
 EXPOSE 8000
 
-#ENTRYPOINT ["uwsgi", "--strict", "--ini", "uwsgi.ini"]
-ENTRYPOINT['./run_uwsgi.sh']
+ENTRYPOINT ["uwsgi", "--strict", "--ini", "uwsgi.ini"]
