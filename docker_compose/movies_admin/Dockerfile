@@ -26,7 +26,6 @@ RUN  mkdir -p /opt/movies_admin/static/ \
 
 COPY . .
 
-
 EXPOSE 8000
 
 ENTRYPOINT ["uwsgi", "--strict", "--ini", "uwsgi.ini"]
